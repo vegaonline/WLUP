@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane fx:id="rootPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="500" minWidth="1000" prefHeight="500.0" prefWidth="1200.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="wlup.MyRootFXMLController">
+   <top>
+      <MenuBar fx:id="rootMenuBar" BorderPane.alignment="CENTER">
+        <menus>
+          <Menu fx:id="rootMenuFile" mnemonicParsing="false" text="File">
+            <items>
+                  <MenuItem fx:id="rootMenuFileNew" mnemonicParsing="false" onAction="#doStartNew" text="New" />
+                  <MenuItem fx:id="rootMenuFileSave" mnemonicParsing="false" text="Save" />
+              <MenuItem fx:id="rootMenuFileClose" mnemonicParsing="false" onAction="#goExit" text="Close" />
+            </items>
+          </Menu>
+          <Menu fx:id="rootMenuPlot" mnemonicParsing="false" text="Plot">
+            <items>
+                  <MenuItem fx:id="rootMenuPlotPlot" mnemonicParsing="false" text="Plot" />
+                  <MenuItem fx:id="rootPlotChLib" mnemonicParsing="false" text="Change Library" />
+              <MenuItem fx:id="rootMenuPlotDelete" mnemonicParsing="false" text="Delete" />
+            </items>
+          </Menu>
+          <Menu fx:id="rootMenuHelp" mnemonicParsing="false" text="Help">
+            <items>
+              <MenuItem fx:id="rootMenuHelpAbout" mnemonicParsing="false" text="About" />
+            </items>
+          </Menu>
+        </menus>
+      </MenuBar>
+   </top>
+   <bottom>
+      <ToolBar fx:id="toolBar" maxHeight="60" maxWidth="-Infinity">
+         <items>
+            <VBox alignment="CENTER_LEFT" prefHeight="50.0" prefWidth="120.0">
+               <children>
+                  <Label fx:id="matLBotTool" contentDisplay="CENTER" text="Material" textAlignment="CENTER" textFill="#1b7ebf" />
+                  <ComboBox fx:id="matCBBotTool" onAction="#doSelectMat" prefWidth="2000.0" promptText="Material List" visibleRowCount="5" />
+               </children>
+            </VBox>
+         </items>
+      </ToolBar>
+   </bottom>
+</BorderPane>
