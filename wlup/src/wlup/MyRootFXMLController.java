@@ -366,8 +366,7 @@ public class MyRootFXMLController implements Initializable {
                             }
                             k = 0;
                             for ( int ii = 4; ii <= 5; ii++ ) {
-                                int jj = NG1 + (ii + k * 5) - 1;
-                                int kk = NG1 + ((ii - 3) + k * 5) - 1;
+                                int kk = NG1 + (ii - 3) - 1;
                                 wimsXX.add (kk, Double.parseDouble (fRead[ii]));
                             }
                             ++i;
@@ -444,7 +443,8 @@ public class MyRootFXMLController implements Initializable {
                             for ( int ii = 1; ii <= 5; ii++ ) {
                                 int jj = 1 + ii + (k * 5);
                                 wimsXA.add (jj, Double.valueOf (fRead[ii]));
-                                System.out.println (jj + " " + wimsXA.get (jj) +
+                                System.out.println (jj + " XA->" + wimsXA.get (
+                                        jj) +
                                         " ");
                             }
                             if ( NG12 - 2 - (k + 1) * 5 >= 5 ) {
@@ -460,6 +460,71 @@ public class MyRootFXMLController implements Initializable {
                             k = 0;
                             break;
                     }
+                } else if ( i == 11 ) {
+                    switch (j) {
+                        case 0:
+                            System.out.println ("LINE->" + line);
+                            for ( int ii = 1; ii <= 5; ii++ ) {
+                                int jj = NG1 + (ii + k * 5) - 1;
+                                wimsXQ.add (jj, Double.parseDouble (fRead[ii]));
+                                System.out.println (jj + " " + k + " XQ->" +
+                                        wimsXQ.get (jj));
+                            }
+                            if ( NG2 - (k + 1) * 5 > 5 ) {
+                                ++k;
+                            } else {
+                                ++j;
+                                ++k;
+                            }
+                            break;
+                        case 1:
+                            if ( k != 0 ) {
+                                for ( int ii = 1; ii <= 3; ii++ ) {
+                                    int jj = NG1 + (ii + k * 5) - 1;
+                                    wimsXQ.add (jj, Double.parseDouble (
+                                            fRead[ii]));
+                                    System.out.println (jj + " XQ->" + wimsXQ.
+                                            get (jj));
+                                }
+                            }
+                            k = 0;
+                            for ( int ii = 4; ii <= 5; ii++ ) {
+                                int jj = NG1 + (ii - 3) - 1;
+                                wimsGL.add (jj, Double.parseDouble (fRead[ii]));
+                                System.out.println (jj + " " + k + " GL->" +
+                                        wimsXQ.get (jj));
+                            }
+                            ++i;
+                            j = 0;
+                            break;
+                    }
+                } else if ( i == 12 ) {
+                    switch (j) {
+                        case 0:
+                            for ( int ii = 0; ii <= 5; ii++ ) {
+                                int jj = (NG1 + 2) + (ii + k * 5) - 1;
+                                wimsGL.add (jj, Double.parseDouble (fRead[ii]));
+                            }
+                            if ( NG2 - (k + 1) * 5 > 5 ) {
+                                ++k;
+                            } else {
+                                ++j;
+                                ++k;
+                            }
+                            break;
+                        case 1:
+                            if ( k != 0 ) {
+                                int jj = (NG1 + 2) + (1 + k * 5) - 1;
+                                wimsGL.add (jj, Double.parseDouble (fRead[1]));
+                                System.out.println (wimsGL.get (jj));
+                                k = 0;
+                            }
+                            ++i;
+                            j = 0;
+                            break;
+                    }
+                } else if ( i == 13 ) {
+
                 }
             }
             brWIMS.close ();
