@@ -232,9 +232,13 @@ public class MyRootFXMLController implements Initializable {
         try {
             brWIMS = new BufferedReader (new FileReader (fNameWIMS));
             String line;
+            int lCount = 0;
             while ((line = brWIMS.readLine ()) != null) {
                 String[] fRead = line.split ("\\s+");
                 int fReadLen = fRead.length;
+                if ( lCount++ > 1032 ) {
+                    System.out.println ("# " + lCount + "->" + line);
+                }
                 if ( i == 0 ) {
                     NEL = Integer.parseInt (fRead[1]);
                     NG = Integer.parseInt (fRead[2]);
@@ -430,7 +434,7 @@ public class MyRootFXMLController implements Initializable {
                             if ( k == 0 ) {
                                 for ( int ii = 4; ii <= 5; ii++ ) {
                                     wimsXA.add (Double.valueOf (fRead[ii]));
-                                    System.out.println (wimsXA.get (ii - 4));
+                                    //System.out.println (wimsXA.get (ii - 4));
                                 }
                             }
                             ++i;
@@ -443,17 +447,23 @@ public class MyRootFXMLController implements Initializable {
                             for ( int ii = 1; ii <= 5; ii++ ) {
                                 int jj = 1 + ii + (k * 5);
                                 wimsXA.add (jj, Double.valueOf (fRead[ii]));
-                                System.out.println (jj + " XA->" + wimsXA.get (
-                                        jj) +
+                                System.out.println (jj + " k->" + k + " XA->" +
+                                        wimsXA.get (
+                                                jj) +
                                         " ");
                             }
                             if ( NG12 - 2 - (k + 1) * 5 >= 5 ) {
                                 ++k;
+                            } else if ( NG12 - 2 - (k + 1) * 5 == 0 ) {
+                                ++i;
+                                j= 0;
+                                k = 0;
                             } else {
                                 ++j;
                                 ++k;
                             }
                             break;
+
                         case 1:
                             ++i;
                             j = 0;
@@ -463,7 +473,6 @@ public class MyRootFXMLController implements Initializable {
                 } else if ( i == 11 ) {
                     switch (j) {
                         case 0:
-                            System.out.println ("LINE->" + line);
                             for ( int ii = 1; ii <= 5; ii++ ) {
                                 int jj = NG1 + (ii + k * 5) - 1;
                                 wimsXQ.add (jj, Double.parseDouble (fRead[ii]));
@@ -538,7 +547,8 @@ public class MyRootFXMLController implements Initializable {
         }
 
         // Loading the bottom toolbar ComboBox
-        matCBBotTool.getItems ().clear ();
+        matCBBotTool.getItems ()
+                .clear ();
         for ( matData myData : nucData ) {
             String tmp = myData.getSymbol ().toString () +
                     "  (" +
