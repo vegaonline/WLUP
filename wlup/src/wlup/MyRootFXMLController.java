@@ -49,6 +49,10 @@ public class MyRootFXMLController implements Initializable {
     private Scene myDialogScene;
 
     // Parameter for WIMS
+    boolean conds, lineRead = false;
+    boolean IDB = false;
+    boolean NGL1B = false, NGL2B = false, NGL3B = false;
+
     int NEL, NG, NG0, NG1, NG2, NG3, NG12, NNFD, NNFPD;
     int NDAT1, NDAT2;
     int IDINT, IZ, NF, NT, NR;
@@ -80,6 +84,8 @@ public class MyRootFXMLController implements Initializable {
     private final ObservableList<Double> wimsVF
             = FXCollections.observableArrayList();
     private final ObservableList<Double> wimsXSCF
+            = FXCollections.observableArrayList();
+    private final ObservableList<Double> wimsTEMP
             = FXCollections.observableArrayList();
 
     // FXML elements
@@ -243,10 +249,14 @@ public class MyRootFXMLController implements Initializable {
             while ((line = brWIMS.readLine()) != null) {
                 String[] fRead = line.split("\\s+");
                 int fReadLen = fRead.length;
+                lineRead = false;
                 if (lCount++ > 1032) {
                     System.out.println("# " + lCount + "->" + line);
                 }
-                if (i == 0) {
+                //if (i == 0) {
+                conds = !NGL1B && !lineRead;
+                if (conds) {
+                    System.out.println("line1->" + line);
                     NEL = Integer.parseInt(fRead[1]);
                     NG = Integer.parseInt(fRead[2]);
                     NG0 = Integer.parseInt(fRead[3]);
@@ -260,12 +270,53 @@ public class MyRootFXMLController implements Initializable {
                         wimsGL.add(Double.parseDouble("0.0"));
                     }
                     ++i;
-                } else if (i == 1) {
+                    NGL1B = true;
+                    lineRead = true;
+                };
+                //} else                 
+                conds = NGL1B && !NGL2B && !lineRead;
+                if (conds) {
+                    //if (i == 1) {
+                    System.out.println("line2->" + line);
                     NG3 = Integer.parseInt(fRead[1]);
                     NNFD = Integer.parseInt(fRead[2]);
                     NNFPD = Integer.parseInt(fRead[3]);
+                    NGL2B = true;
+                    System.out.println("NG3->" + NG3 + " " + NNFD + " " + NNFPD);
                     ++i;
-                } else if (i == 2) {
+                    NGL2B = true;
+                    lineRead = true;
+                    //}
+                };
+                conds = (NGL1B && NGL2B && !IDB & !lineRead);
+                if (conds) {
+                    int jj = 0;
+                    System.out.println("line3->" + line);
+                    int lineSeq = NEL - (k ) * 5;
+                    if (lineSeq >= 5) {
+                        for (int ii = 1; ii <= (fRead.length - 1); ii++) {
+                            jj = ii + k * 5 - 1;
+                            wimsID.add(Integer.parseInt(fRead[ii]));
+                            System.out.println("jj->" + jj + " k->" + k
+                                    + " " + wimsID.get(jj));
+                        }
+                        if (jj == NEL - 1) {
+                            IDB = true;
+                            lineRead = true;
+                        }
+                        ++k;
+                    } else {
+                        for (int ii = 1; ii <= (fRead.length - 1); ii++) {
+                            jj = ii + k * 5 - 1;
+                            wimsID.add(Integer.parseInt(fRead[ii]));
+                            System.out.println("jj-> " + jj + " k->" + k
+                                    + " " + wimsID.get(wimsID.size() - 1));
+                        }
+                    }
+                };
+
+                /*
+                else if (i == 2) {
                     if (j <= NEL) { // carry on till ID(NEL)
                         for (int ii = 1; ii <= fReadLen - 1; ii++) {
                             wimsID.add(Integer.parseInt(fRead[ii]));
@@ -276,7 +327,8 @@ public class MyRootFXMLController implements Initializable {
                         j = 0; // initialize to zero
                         ++i;
                     }
-                } else if (i == 3) {
+                    
+                 else if (i == 3) {
                     if (j <= NG + 1) { // till EG(NG+1)
                         for (int ii = 1; ii <= fReadLen - 1; ii++) {
                             wimsEG.add(Double.parseDouble(fRead[ii]));
@@ -484,7 +536,7 @@ public class MyRootFXMLController implements Initializable {
                                 ++k;
                             } else {
                                 ++j;
-                                ++k;
+                                //++k;
                             }
                             break;
                         case 1:
@@ -510,8 +562,6 @@ public class MyRootFXMLController implements Initializable {
                             for (int ii = 1; ii <= 5; ii++) {
                                 int jj = (NG1 + 2) + (ii + k * 5) - 1;
                                 wimsGL.add(jj, Double.parseDouble(fRead[ii]));
-                                System.out.println(jj + " " + k + " GL->"
-                                        + wimsGL.get(jj));
                             }
                             if (NG2 - (k + 1) * 5 > 5) {
                                 ++k;
@@ -524,8 +574,6 @@ public class MyRootFXMLController implements Initializable {
                             if (k != 0) {
                                 int jj = (NG1 + 2) + (1 + k * 5) - 1;
                                 wimsGL.add(jj, Double.parseDouble(fRead[1]));
-                                System.out.println(jj + " " + k + " GL->"
-                                        + wimsGL.get(jj));
                                 k = 0;
                             }
                             ++i;
@@ -554,8 +602,9 @@ public class MyRootFXMLController implements Initializable {
                         case 1:
                             if (k != 0) {
                                 for (int ii = 1; ii <= 4; ii++) {
-                                    int jj = ii + (k + 1) * 5 - 1;
+                                    int jj = ii + (k + 1) * 5;
                                     wimsXSCF.add(jj, Double.parseDouble(fRead[ii]));
+                                    System.out.println(jj + " XSCF->" + wimsXSCF.get(jj));
                                 }
                                 k = 0;
                             }
@@ -564,12 +613,53 @@ public class MyRootFXMLController implements Initializable {
                             break;
                     }
                 } else if (i == 15) {
-
+                    switch (j) {
+                        case 0:
+                            for (int ii = 0; ii <= 5; ii++) {
+                                int jj = ii + k * 5 - 1;
+                                wimsTEMP.add(jj, Double.parseDouble(fRead[ii]));
+                            }
+                            if (NT - (k + 1) * 5 > 5) {
+                                ++k;
+                            } else {
+                                ++j;
+                            }
+                            break;
+                        case 1:
+                            if (k != 0) {
+                                for (int ii = 1; ii <= NT - (k + 1) * 5; ii++) {
+                                    int jj = ii + (k + 1) * 5;
+                                    wimsTEMP.add(jj, Double.parseDouble(fRead[ii]));
+                                    k = 0;
+                                }
+                            }
+                            j = 0;
+                            ++i;
+                            break;
+                    }
+                } else if (i == 16) {
+                    switch (j) {
+                        case 0:
+                            for (int ii = 1; ii <= 5; ii++) {
+                                int jj = NG12 + ii + (k * 5) - 1;
+                                wimsXT.add(jj, Double.parseDouble(fRead[ii]));
+                            }
+                            if (NG12 - (k + 1) * 5 > 5) {
+                                ++k;
+                            } else {
+                                ++j;                                
+                            }
+                    }
                 }
+                 */
             }
+
             brWIMS.close();
+
             System.gc();
-            System.out.println(fNameWIMS + " file reading successful...."
+
+            System.out.println(fNameWIMS
+                    + " file reading successful...."
                     + i + " " + j);
         } catch (Exception e) {
             System.out.println("File " + fNameWIMS + " Reading error "
