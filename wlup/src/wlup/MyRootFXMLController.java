@@ -50,7 +50,8 @@ public class MyRootFXMLController implements Initializable {
 
     // Parameter for WIMS
     boolean conds, lineRead = false;
-    boolean IDB = false;
+    boolean linePart = false;
+    boolean IDB = false, EGB = false;
     boolean NGL1B = false, NGL2B = false, NGL3B = false;
 
     int NEL, NG, NG0, NG1, NG2, NG3, NG12, NNFD, NNFPD;
@@ -253,10 +254,8 @@ public class MyRootFXMLController implements Initializable {
                 if (lCount++ > 1032) {
                     System.out.println("# " + lCount + "->" + line);
                 }
-                //if (i == 0) {
                 conds = !NGL1B && !lineRead;
                 if (conds) {
-                    System.out.println("line1->" + line);
                     NEL = Integer.parseInt(fRead[1]);
                     NG = Integer.parseInt(fRead[2]);
                     NG0 = Integer.parseInt(fRead[3]);
@@ -269,43 +268,38 @@ public class MyRootFXMLController implements Initializable {
                         wimsXQ.add(Double.parseDouble("0.0"));
                         wimsGL.add(Double.parseDouble("0.0"));
                     }
-                    ++i;
                     NGL1B = true;
                     lineRead = true;
-                };
-                //} else                 
+                }
                 conds = NGL1B && !NGL2B && !lineRead;
                 if (conds) {
-                    //if (i == 1) {
-                    System.out.println("line2->" + line);
                     NG3 = Integer.parseInt(fRead[1]);
                     NNFD = Integer.parseInt(fRead[2]);
                     NNFPD = Integer.parseInt(fRead[3]);
                     NGL2B = true;
-                    System.out.println("NG3->" + NG3 + " " + NNFD + " " + NNFPD);
-                    ++i;
                     NGL2B = true;
                     lineRead = true;
-                    //}
-                };
-                conds = (NGL1B && NGL2B && !IDB & !lineRead);
+                }
+                conds = (NGL1B && NGL2B && !IDB && !lineRead);
                 if (conds) {
                     int jj = 0;
-                    System.out.println("line3->" + line);
-                    int lineSeq = NEL - (k ) * 5;
+                    int lineSeq = NEL - k * 5;
                     if (lineSeq >= 5) {
                         for (int ii = 1; ii <= (fRead.length - 1); ii++) {
                             jj = ii + k * 5 - 1;
                             wimsID.add(Integer.parseInt(fRead[ii]));
-                            System.out.println("jj->" + jj + " k->" + k
-                                    + " " + wimsID.get(jj));
+                            System.out.println("jj-> " + jj + " k->" + k
+                                    + " " + wimsID.get(wimsID.size() - 1));
                         }
                         if (jj == NEL - 1) {
                             IDB = true;
                             lineRead = true;
+                            k = 0;
+                            System.out.println("ID loading complete...");
                         }
                         ++k;
-                    } else {
+                        linePart = (NEL - k * 5 < 5) ? true : false;
+                    } else if (linePart) {
                         for (int ii = 1; ii <= (fRead.length - 1); ii++) {
                             jj = ii + k * 5 - 1;
                             wimsID.add(Integer.parseInt(fRead[ii]));
@@ -313,21 +307,40 @@ public class MyRootFXMLController implements Initializable {
                                     + " " + wimsID.get(wimsID.size() - 1));
                         }
                     }
-                };
-
-                /*
-                else if (i == 2) {
-                    if (j <= NEL) { // carry on till ID(NEL)
-                        for (int ii = 1; ii <= fReadLen - 1; ii++) {
-                            wimsID.add(Integer.parseInt(fRead[ii]));
+                }
+                conds = (NGL1B && NGL2B && IDB
+                        && !EGB && !lineRead);
+                if (conds) {
+                    System.out.println("line->" + line);
+                    int jj = 0;
+                    int lineSeq = (NG + 1) - k * 5;
+                    if (lineSeq >= 5) {
+                        for (int ii = 1; ii <= (fRead.length - 1); ii++) {
+                            jj = ii + k * 5 - 1;
+                            wimsEG.add(Double.parseDouble(fRead[ii]));
+                            System.out.println("jj-> " + jj + " k->" + k
+                                    + " " + wimsEG.get(wimsEG.size() - 1));
                         }
+                        if (jj == NG + 1 - 1) {
+                            EGB = true;
+                            lineRead = true;
+                            k = 0;
+                        }
+                        ++k;
+                        linePart = (NG + 1 - k * 5 < 5) ? true : false;
+                    } else if (linePart) {
+                        int part1 = NG + 1 - k * 5;
+                        int part2 = fRead.length - 1 - part1;
+                        for (int ii = 1; ii <= part1; ii++) {
+                            jj = ii + k * 5 - 1;
+                            wimsEG.add(Double.parseDouble(fRead[ii]));
+                            System.out.println("jj-> " + jj + " k->" + k
+                                    + " " + wimsEG.get(wimsEG.size() - 1));
+                        }
+
                     }
-                    j += (fReadLen - 1); // add length for each slot of 5 iints
-                    if (j == NEL) { // when NEL IDs read, go to next var
-                        j = 0; // initialize to zero
-                        ++i;
-                    }
-                    
+                }
+                /*
                  else if (i == 3) {
                     if (j <= NG + 1) { // till EG(NG+1)
                         for (int ii = 1; ii <= fReadLen - 1; ii++) {
