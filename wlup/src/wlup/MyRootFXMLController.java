@@ -49,10 +49,14 @@ public class MyRootFXMLController implements Initializable {
     private Scene myDialogScene;
 
     // Parameter for WIMS
-    boolean conds, lineRead = false;
-    boolean linePart = false;
-    boolean IDB = false, EGB = false;
-    boolean NGL1B = false, NGL2B = false, NGL3B = false;
+    private boolean conds, lineRead = false;
+    private boolean linePart = false;
+    private boolean IDB = false, EGB = false, CHIB = false;
+    private boolean NGL1B = false, NGL2B = false, NGL3B = false;
+    private boolean CS1LIB = false;
+    private boolean CSXPB = false, CSXXB = false;
+    private boolean CSXTB = false, CSXAB = false, CSXQB = false;
+    private boolean isFileMark1 = false, isFileMark2 = false;
 
     int NEL, NG, NG0, NG1, NG2, NG3, NG12, NNFD, NNFPD;
     int NDAT1, NDAT2;
@@ -251,9 +255,12 @@ public class MyRootFXMLController implements Initializable {
                 String[] fRead = line.split("\\s+");
                 int fReadLen = fRead.length;
                 lineRead = false;
+                /*
                 if (lCount++ > 1032) {
                     System.out.println("# " + lCount + "->" + line);
                 }
+                 */
+
                 conds = !NGL1B && !lineRead;
                 if (conds) {
                     NEL = Integer.parseInt(fRead[1]);
@@ -284,12 +291,17 @@ public class MyRootFXMLController implements Initializable {
                 if (conds) {
                     int jj = 0;
                     int lineSeq = NEL - k * 5;
-                    if (lineSeq >= 5) {
-                        for (int ii = 1; ii <= (fRead.length - 1); ii++) {
+                    if (lineSeq > 5) {
+                        for (int ii = 1; ii <= (fReadLen - 1); ii++) {
                             jj = ii + k * 5 - 1;
                             wimsID.add(Integer.parseInt(fRead[ii]));
-                            System.out.println("jj-> " + jj + " k->" + k
-                                    + " " + wimsID.get(wimsID.size() - 1));
+                        }
+                        ++k;
+                        linePart = (NEL - k * 5 <= 5) ? true : false;
+                    } else if (linePart) {
+                        for (int ii = 1; ii <= (fReadLen - 1); ii++) {
+                            jj = ii + k * 5 - 1;
+                            wimsID.add(Integer.parseInt(fRead[ii]));
                         }
                         if (jj == NEL - 1) {
                             IDB = true;
@@ -297,247 +309,330 @@ public class MyRootFXMLController implements Initializable {
                             k = 0;
                             System.out.println("ID loading complete...");
                         }
-                        ++k;
-                        linePart = (NEL - k * 5 < 5) ? true : false;
-                    } else if (linePart) {
-                        for (int ii = 1; ii <= (fRead.length - 1); ii++) {
-                            jj = ii + k * 5 - 1;
-                            wimsID.add(Integer.parseInt(fRead[ii]));
-                            System.out.println("jj-> " + jj + " k->" + k
-                                    + " " + wimsID.get(wimsID.size() - 1));
-                        }
                     }
                 }
                 conds = (NGL1B && NGL2B && IDB
                         && !EGB && !lineRead);
                 if (conds) {
-                    System.out.println("line->" + line);
                     int jj = 0;
                     int lineSeq = (NG + 1) - k * 5;
-                    if (lineSeq >= 5) {
-                        for (int ii = 1; ii <= (fRead.length - 1); ii++) {
+                    if (lineSeq > 5) {
+                        for (int ii = 1; ii <= (fReadLen - 1); ii++) {
                             jj = ii + k * 5 - 1;
                             wimsEG.add(Double.parseDouble(fRead[ii]));
-                            System.out.println("jj-> " + jj + " k->" + k
-                                    + " " + wimsEG.get(wimsEG.size() - 1));
+                        }
+                        ++k;
+                        linePart = (NG + 1 - k * 5 <= 5) ? true : false;
+                    } else if (linePart) {
+                        int part1 = NG + 1 - k * 5;
+                        int part2 = fReadLen - 1 - part1;
+                        for (int ii = 1; ii <= part1; ii++) {
+                            jj = ii + k * 5 - 1;
+                            wimsEG.add(Double.parseDouble(fRead[ii]));
                         }
                         if (jj == NG + 1 - 1) {
                             EGB = true;
                             lineRead = true;
                             k = 0;
+                            System.out.println("EGB loading complete...");
                         }
-                        ++k;
-                        linePart = (NG + 1 - k * 5 < 5) ? true : false;
-                    } else if (linePart) {
-                        int part1 = NG + 1 - k * 5;
-                        int part2 = fRead.length - 1 - part1;
-                        for (int ii = 1; ii <= part1; ii++) {
-                            jj = ii + k * 5 - 1;
-                            wimsEG.add(Double.parseDouble(fRead[ii]));
-                            System.out.println("jj-> " + jj + " k->" + k
-                                    + " " + wimsEG.get(wimsEG.size() - 1));
-                        }
-
                     }
                 }
-                /*
-                 else if (i == 3) {
-                    if (j <= NG + 1) { // till EG(NG+1)
-                        for (int ii = 1; ii <= fReadLen - 1; ii++) {
-                            wimsEG.add(Double.parseDouble(fRead[ii]));
-                        }
-                    }
-                    j += (fReadLen - 1);
-                    if (j == NG + 1) {
-                        j = 0;
-                        ++i;
-                    }
-                } else if (i == 4) {
-                    if (j <= NG0) {
-                        for (int ii = 1; ii <= fReadLen - 1; ii++) {
+
+                conds = (NGL1B && NGL2B && IDB
+                        && EGB && !CHIB && !lineRead);
+                if (conds) {
+                    int jj = 0;
+                    int lineSeq = (NG0) - k * 5;
+                    if (lineSeq >= 5) {
+                        for (int ii = 1; ii <= (fReadLen - 1); ii++) {
+                            jj = ii + k * 5 - 1;
                             wimsCHI.add(Double.parseDouble(fRead[ii]));
                         }
-                    }
-                    j += (fReadLen - 1);
-                    if (j == NG0) {
-                        j = 0;
-                        ++i;
-                    }
-                } else if (i == 5) {
-                    if (j <= NEL && NDAT1 != filemark) {
-                        switch (fReadLen) {
-                            case 2:
-                                NDAT1 = Integer.parseInt(fRead[1]);
-                                break;
-                            case 3:
-                                if (NDAT1 == 2) {
-                                    for (int ii = 1; ii <= NDAT1 / 2; ii++) {
-                                        wimsMTF.add(
-                                                Double.parseDouble(fRead[1]));
-                                        wimsYLD.add(
-                                                Integer.parseInt(fRead[2]));
-                                    }
-                                    j++;
-                                }
-                                if (NDAT1 == 8) {
-                                    wimsMTF.add(Double.parseDouble(fRead[1]));
-                                    wimsYLD.add(Integer.parseInt(fRead[2]));
-                                    j++;
-                                }
-                                break;
-                            case 7:
-                                if (NDAT1 <= 8) {
-                                    for (int ii = 1; ii <= NDAT1 - 2; ii += 2) {
-                                        wimsMTF.add(
-                                                Double.parseDouble(fRead[ii]));
-                                        wimsYLD.add(
-                                                Integer.parseInt(fRead[ii + 1]));
-                                    }
-                                } else {
-                                    for (int ii = 1; ii <= 6;
-                                            ii += 2) {
-                                        wimsMTF.add(
-                                                Double.parseDouble(fRead[ii]));
-                                        wimsYLD.add(
-                                                Integer.parseInt(fRead[ii + 1]));
-                                    }
-                                }
+
+                        ++k;
+                        linePart = (NG0 - k * 5 < 5) ? true : false;
+                    } else if (linePart) {
+                        int part1 = NG0 - k * 5;
+                        int part2 = fReadLen - 1 - part1;
+                        for (int ii = 1; ii <= part1; ii++) {
+                            jj = ii + k * 5 - 1;
+                            wimsCHI.add(Double.parseDouble(fRead[ii]));
                         }
-                        if (NDAT1 == filemark) {
-                            j = 0;
-                            ++i;
+                        if (jj == NG0 - 1) {
+                            CHIB = true;
+                            lineRead = true;
+                            k = 0;
+                            System.out.println("CHI loading complete...");
                         }
                     }
-                } else if (i == 6) {  // CS series 
+                }
+
+                conds = (NGL1B && NGL2B && IDB
+                        && EGB && CHIB && !isFileMark1 && !lineRead);
+                if (conds && fReadLen == 2) {
+                    NDAT1 = Integer.parseInt(fRead[1]);
+                }
+                if (conds && fReadLen == 3 && NDAT1 == 2) {
+                    for (int ii = 1; ii <= NDAT1 / 2; ii++) {
+                        wimsMTF.add(
+                                Double.parseDouble(fRead[1]));
+                        wimsYLD.add(
+                                Integer.parseInt(fRead[2]));
+                    }
+                }
+                if (conds && fReadLen == 3 && NDAT1 == 8) {
+                    wimsMTF.add(Double.parseDouble(fRead[1]));
+                    wimsYLD.add(Integer.parseInt(fRead[2]));
+                }
+                if (conds && fReadLen == 5) {
+                    for (int ii = 1; ii <= 4; ii += 2) {
+                        wimsMTF.add(
+                                Double.parseDouble(fRead[ii]));
+                        wimsYLD.add(
+                                Integer.parseInt(fRead[ii + 1]));
+                    }
+                }
+                if (conds && fReadLen == 7 && NDAT1 <= 8) {
+                    for (int ii = 1; ii <= NDAT1 - 2; ii += 2) {
+                        wimsMTF.add(
+                                Double.parseDouble(fRead[ii]));
+                        wimsYLD.add(
+                                Integer.parseInt(fRead[ii + 1]));
+                    }
+                }
+                if (conds && fReadLen == 7 && NDAT1 > 8) {
+                    for (int ii = 1; ii <= 6; ii += 2) {
+                        wimsMTF.add(
+                                Double.parseDouble(fRead[ii]));
+                        wimsYLD.add(
+                                Integer.parseInt(fRead[ii + 1]));
+                    }
+                }
+                if (conds && NDAT1 == filemark) {
+                    isFileMark1 = true;
+                    lineRead = true;
+                    System.out.println("WIMS config loaded...");
+                }
+
+                conds = (NGL1B && NGL2B && IDB
+                        && EGB && CHIB && isFileMark1
+                        && !CS1LIB && !lineRead);
+                if (conds) {
                     IDINT = Integer.parseInt(fRead[1]);
                     AW = Double.parseDouble(fRead[2]);
                     IZ = Integer.parseInt(fRead[3]);
                     NF = Integer.parseInt(fRead[4]);
                     NT = Integer.parseInt(fRead[5]);
                     NR = Integer.parseInt(fRead[6]);
-                    j = 0;
-                    k = 0;
-                    ++i;
-                } else if (i == 7) {
-                    switch (j) {
-                        case 0:
-                            for (int ii = 1; ii <= 5; ii++) {
-                                int jj = NG1 + (ii + k * 5) - 1;
-                                wimsXP.add(jj, Double.parseDouble(fRead[ii]));
-                            }
-                            if (NG2 - (k + 1) * 5 > 5) {
-                                ++k;
-                            } else {
-                                ++j;
-                                ++k;
-                            }
-                            break;
-                        case 1:
-                            if (k != 0) {
-                                for (int ii = 1; ii <= 3; ii++) {
-                                    int jj = NG1 + (ii + k * 5) - 1;
-                                    wimsXP.add(jj, Double.parseDouble(
-                                            fRead[ii]));
-                                }
-                            }
-                            k = 0;
-                            for (int ii = 4; ii <= 5; ii++) {
-                                int kk = NG1 + (ii - 3) - 1;
-                                wimsXX.add(kk, Double.parseDouble(fRead[ii]));
-                            }
-                            ++i;
-                            j = 0;
-                            break;
-                    }
-                } else if (i == 8) {
-                    switch (j) {
-                        case 0:
-                            for (int ii = 1; ii <= 5; ii++) {
-                                int jj = (NG1 + 2) + (ii + k * 5) - 1;
-                                wimsXX.add(jj, Double.parseDouble(fRead[ii]));
-                            }
-                            if (NG2 - (k + 1) * 5 > 5) {
-                                ++k;
-                            } else {
-                                ++j;
-                                ++k;
-                            }
-                            break;
-                        case 1:
-                            if (k != 0) {
-                                int jj = (NG1 + 2) + (1 + k * 5) - 1;
-                                wimsXX.add(jj, Double.parseDouble(fRead[1]));
-                                k = 0;
-                            }
-                            if (k == 0) {
-                                wimsXT.add(Double.valueOf(fRead[2]));
-                                wimsXT.add(Double.valueOf(fRead[3]));
-                                wimsXT.add(Double.valueOf(fRead[4]));
-                                wimsXT.add(Double.valueOf(fRead[5]));
-                            }
-                            ++i;
-                            k = 0;
-                            j = 0;
-                            break;
-                    }
-                } else if (i == 9) {
-                    switch (j) {
-                        case 0:
-                            for (int ii = 1; ii <= 5; ii++) {
-                                int jj = 3 + ii + (k * 5);
-                                wimsXT.add(jj, Double.valueOf(fRead[ii]));
-                            }
-                            if (NG12 - 4 - (k + 1) * 5 > 5) {
-                                ++k;
-                            } else {
-                                ++j;
-                                ++k;
-                            }
-                            break;
-                        case 1:
-                            if (k != 0) {
-                                for (int ii = 1; ii <= 3; ii++) {
-                                    int jj = (NG12 - 4) + ii;
-                                    wimsXT.add(jj,
-                                            Double.valueOf(fRead[ii]));
-                                }
-                                k = 0;
-                            }
-                            if (k == 0) {
-                                for (int ii = 4; ii <= 5; ii++) {
-                                    wimsXA.add(Double.valueOf(fRead[ii]));
-                                    //System.out.println (wimsXA.get (ii - 4));
-                                }
-                            }
-                            ++i;
-                            j = 0;
-                            break;
-                    }
-                } else if (i == 10) {
-                    switch (j) {
-                        case 0:
-                            for (int ii = 1; ii <= 5; ii++) {
-                                int jj = 1 + ii + (k * 5);
-                                wimsXA.add(jj, Double.valueOf(fRead[ii]));
-                            }
-                            if (NG12 - 2 - (k + 1) * 5 >= 5) {
-                                ++k;
-                            } else if (NG12 - 2 - (k + 1) * 5 == 0) {
-                                ++i;
-                                j = 0;
-                                k = 0;
-                            } else {
-                                ++j;
-                                ++k;
-                            }
-                            break;
+                    CS1LIB = true;
+                    lineRead = true;
+                    System.out.println("CSLIB config loaded...");
+                }
 
-                        case 1:
-                            ++i;
-                            j = 0;
+                conds = (NGL1B && NGL2B && IDB
+                        && EGB && CHIB && isFileMark1
+                        && CS1LIB && !CSXPB && !lineRead);
+                if (conds) {
+                    int jj = 0;
+                    int kk = 0;
+                    int lineSeq = NG2 - k * 5;
+                    if (lineSeq > 5) {
+                        for (int ii = 1; ii <= (fReadLen - 1); ii++) {
+                            jj = NG1 + ii + k * 5 - 1;
+                            wimsXP.add(jj, Double.parseDouble(fRead[ii]));
+                        }
+                        ++k;
+                        linePart = (NG2 - k * 5) <= 5 ? true : false;
+                    } else if (linePart) {
+                        int part1 = NG2 - k * 5;
+                        int part2 = fReadLen - 1 - part1;
+                        for (int ii = 1; ii <= part1; ii++) {
+                            jj = NG1 + ii + (k * 5) - 1;
+                            wimsXP.add(jj, Double.parseDouble(fRead[ii]));
+                        }
+                        for (int ii = 1; ii <= part2; ii++) {
+                            jj = NG1 + ii - 1;
+                            kk = part1 + ii;
+                            wimsXX.add(jj, Double.parseDouble(fRead[kk]));
+                        }
+                        if (kk == fReadLen - 1) {
+                            CSXPB = true;
+                            lineRead = true;
                             k = 0;
-                            break;
+                            System.out.println("XP loading complete..");
+                            System.out.println("XX loading done for " + part2 + " components");
+                        }
                     }
+                }
+
+                conds = (NGL1B && NGL2B && IDB
+                        && EGB && CHIB && isFileMark1
+                        && CS1LIB && CSXPB && !CSXXB && !lineRead);
+                if (conds) {
+                    int jj = 0;
+                    int kk = 0;
+                    int lineSeq = (NG2 - 2) - k * 5;
+                    if (lineSeq > 5) {
+                        for (int ii = 1; ii <= (fReadLen - 1); ii++) {
+                            jj = (NG1 + 2) + ii + k * 5 - 1;
+                            wimsXX.add(jj, Double.parseDouble(fRead[ii]));
+                        }
+                        ++k;
+                        linePart = (NG2 - 2 - k * 5) <= 5 ? true : false;
+                    } else if (linePart) {
+                        int part1 = NG2 - 2 - k * 5;
+                        int part2 = fReadLen - 1 - part1;
+                        for (int ii = 1; ii <= part1; ii++) {
+                            jj = (NG1 + 2) + ii + (k * 5) - 1;
+                            wimsXX.add(jj, Double.parseDouble(fRead[ii]));
+                        }
+                        for (int ii = 1; ii <= part2; ii++) {
+                            jj = ii - 1;
+                            kk = part1 + ii;
+                            wimsXT.add(jj, Double.parseDouble(fRead[kk]));
+                        }
+                        if (kk == fReadLen - 1) {
+                            CSXXB = true;
+                            lineRead = true;
+                            k = 0;
+                            System.out.println("XX loading complete..");
+                            System.out.println("XT loading done for " + part2 + " components");
+                        }
+                    }
+                }
+
+                conds = (NGL1B && NGL2B && IDB
+                        && EGB && CHIB && isFileMark1
+                        && CS1LIB && CSXPB && CSXXB
+                        && !CSXTB && !lineRead);
+                if (conds) {
+                    int jj = 0;
+                    int kk = 0;
+                    int lineSeq = (NG12 - 4) - k * 5;
+                    if (lineSeq > 5) {
+                        for (int ii = 1; ii <= (fReadLen - 1); ii++) {
+                            jj = 4 + ii + k * 5 - 1;
+                            wimsXT.add(jj, Double.parseDouble(fRead[ii]));
+                        }
+                        ++k;
+                        linePart = (NG12 - 4 - k * 5) <= 5 ? true : false;
+                    } else if (linePart) {
+                        int part1 = NG12 - 4 - k * 5;
+                        int part2 = fReadLen - 1 - part1;
+                        for (int ii = 1; ii <= part1; ii++) {
+                            jj = 4 + ii + (k * 5) - 1;
+                            wimsXT.add(jj, Double.parseDouble(fRead[ii]));
+                        }
+                        for (int ii = 1; ii <= part2; ii++) {
+                            jj = ii - 1;
+                            kk = part1 + ii;
+                            wimsXA.add(jj, Double.parseDouble(fRead[kk]));
+                        }
+                        if (kk == fReadLen - 1) {
+                            CSXTB = true;
+                            lineRead = true;
+                            k = 0;
+                            System.out.println("XT loading complete..");
+                            System.out.println("XA loading done for " + part2 + " components");
+                        }
+                    }
+                }
+
+                conds = (NGL1B && NGL2B && IDB
+                        && EGB && CHIB && isFileMark1
+                        && CS1LIB && CSXPB && CSXXB
+                        && CSXTB && !CSXAB && !lineRead);
+                if (conds) {
+                    int jj = 0;
+                    int kk = 0;
+                    int lineSeq = (NG12 - 2) - k * 5;
+                    if (lineSeq > 5) {
+                        for (int ii = 1; ii <= (fReadLen - 1); ii++) {
+                            jj = 2 + ii + k * 5 - 1;
+                            wimsXA.add(jj, Double.parseDouble(fRead[ii]));
+                            System.out.println(jj + " k->" + k + " XA->"
+                                    + wimsXA.get(wimsXA.size() - 1));
+                        }
+                        ++k;
+                        linePart = (NG12 - 2 - k * 5) <= 5 ? true : false;
+                    } else if (linePart) {
+                        int part1 = NG12 - 2 - k * 5;
+                        int part2 = fReadLen - 1 - part1;
+                        for (int ii = 1; ii <= part1; ii++) {
+                            jj = 2 + ii + (k * 5) - 1;
+                            wimsXA.add(jj, Double.parseDouble(fRead[ii]));
+                            System.out.println(jj + " k->" + k + " XA->"
+                                    + wimsXA.get(wimsXA.size() - 1));
+                        }
+                        for (int ii = 1; ii <= part2; ii++) {
+                            jj = ii - 1;
+                            kk = part1 + ii;
+                            wimsXQ.add(jj, Double.parseDouble(fRead[kk]));
+                            System.out.println(jj + " XQ->"
+                                    + wimsXQ.get(wimsXQ.size() - 1));
+                        }
+                        if (kk == fReadLen - 1) {
+                            CSXAB = true;
+                            lineRead = true;
+                            k = 0;
+                            System.out.println("XA loading complete..");
+                            System.out.println("XQ loading done for " + part2 + " components");
+                            System.exit(0);
+                        }
+                        
+                    }
+                }
+
+              
+                conds = (NGL1B && NGL2B && IDB
+                        && EGB && CHIB && isFileMark1
+                        && CS1LIB && CSXPB && CSXXB
+                        && CSXTB && CSXAB && !CSXQB 
+                        && !lineRead);
+                if (conds) {
+                    int jj = 0;
+                    int kk = 0;
+                    int lineSeq = NG2 - k * 5;
+                    if (lineSeq > 5) {
+                        for (int ii = 1; ii <= (fReadLen - 1); ii++) {
+                            jj = NG1 + ii + k * 5 - 1;
+                            wimsXA.add(jj, Double.parseDouble(fRead[ii]));
+                            System.out.println(jj + " k->" + k + " XA->"
+                                    + wimsXA.get(wimsXA.size() - 1));
+                        }
+                        ++k;
+                        linePart = (NG12 - 2 - k * 5) <= 5 ? true : false;
+                    } else if (linePart) {
+                        int part1 = NG12 - 2 - k * 5;
+                        int part2 = fReadLen - 1 - part1;
+                        for (int ii = 1; ii <= part1; ii++) {
+                            jj = 2 + ii + (k * 5) - 1;
+                            wimsXA.add(jj, Double.parseDouble(fRead[ii]));
+                            System.out.println(jj + " k->" + k + " XA->"
+                                    + wimsXA.get(wimsXA.size() - 1));
+                        }
+                        for (int ii = 1; ii <= part2; ii++) {
+                            jj = ii - 1;
+                            kk = part1 + ii;
+                            wimsXQ.add(jj, Double.parseDouble(fRead[kk]));
+                            System.out.println(jj + " XQ->"
+                                    + wimsXQ.get(wimsXQ.size() - 1));
+                        }
+                        if (kk == fReadLen - 1) {
+                            CSXAB = true;
+                            lineRead = true;
+                            k = 0;
+                            System.out.println("XA loading complete..");
+                            System.out.println("XQ loading done for " + part2 + " components");
+                            System.exit(0);
+                        }
+                    }
+                }  
+                
+                
+                /*
+               
                 } else if (i == 11) {
                     switch (j) {
                         case 0:
